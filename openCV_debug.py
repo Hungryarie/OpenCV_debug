@@ -15,6 +15,8 @@ class OCVWindow:
         self.width = 0
         self.channels = 0
         self.img = 0
+        self.img_array = []
+        self.img_key = 0
         self.orgimg = 0
         self.cap = None
         cv2.namedWindow(name)  # cv2.namedWindow(name, cv2.WINDOW_NORMAL)
@@ -54,6 +56,28 @@ class OCVWindow:
 
         self.file = file
         self.AddParameters()
+
+    def AddImgBatch(self, file):
+        """
+        Add multiple images to a queue.
+        also run CycleImg() during the While loop
+        """
+        self.img_array.append(file)
+        #self.img_key += 1
+
+    def CycleImg(self, key=-1):
+        if key == -1:
+            # cycle through images
+            key = self.img_key
+        else:
+            # use specific image key
+            pass
+
+        self.AddImgFile(self.img_array[self.img_key])
+        key += 1
+        self.img_key = key
+        if self.img_key > len(self.img_array)-1:
+            self.img_key = 0
 
     def AddParameters(self):
 
@@ -205,7 +229,7 @@ class OCVWindow:
         """
         Add an standard threshold 'cv2.THRESH_BINARY' filter on self.img
         """
-        _, self.img = cv2.threshold(self.img, split, 255, cv2.THRESH_BINARY)
+        _, self.img = cv2.threshold(self.orgimg, split, 255, cv2.THRESH_BINARY)
         self.GetSize()
         self.filter_list.append("threshold_binary")
         self.filter_dict["threshold_binary"] = split
@@ -538,7 +562,8 @@ class OCVWindow:
         self.trackbar_dict[trackbar_pointer] = value      # put value in dict
 
         if trackbar_pointer.lower() == "threshold_binary":
-            _, self.img = cv2.threshold(self.orgimg, value, 255, cv2.THRESH_BINARY)
+            #_, self.img = cv2.threshold(self.orgimg, value, 255, cv2.THRESH_BINARY)
+            self.AddFilterThreshold_binary(self.trackbar_dict["threshold_binary"])
             # print ("didit", self.name)
         elif trackbar_pointer.lower() == "canny_max":
             # sets the canny_max value in the trackbar_dict
