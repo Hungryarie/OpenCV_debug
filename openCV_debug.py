@@ -26,6 +26,7 @@ class OCVWindow:
         self.filter_dict = {}
         self.filter_dict_prev = {}
         self.file = None
+        self.cycle_delay_step = 0
 
     def CopyFrom(self, copy, blank=False):
         """
@@ -60,24 +61,27 @@ class OCVWindow:
     def AddImgBatch(self, file):
         """
         Add multiple images to a queue.
-        also run CycleImg() during the While loop
+        also do not forget to run CycleImg() during the While loop
         """
         self.img_array.append(file)
         #self.img_key += 1
 
-    def CycleImg(self, key=-1):
-        if key == -1:
-            # cycle through images
-            key = self.img_key
-        else:
-            # use specific image key
-            pass
+    def CycleImg(self, delay=10, key=-1):
+        if self.cycle_delay_step >= delay:
+            if key == -1:
+                # cycle through images
+                key = self.img_key
+            else:
+                # use specific image key
+                pass
 
-        self.AddImgFile(self.img_array[self.img_key])
-        key += 1
-        self.img_key = key
-        if self.img_key > len(self.img_array)-1:
-            self.img_key = 0
+            self.AddImgFile(self.img_array[self.img_key])
+            key += 1
+            self.img_key = key
+            if self.img_key > len(self.img_array)-1:
+                self.img_key = 0
+        else:
+            self.cycle_delay_step += 1
 
     def AddParameters(self):
 
@@ -86,6 +90,7 @@ class OCVWindow:
         self.height = Height
         self.width = Width
         self.channels = Channels
+        self.cycle_delay_step = 0   # reset to zero
 
     def AddCam(self, cameraNum=0, startSec=0):
         """
